@@ -1,0 +1,100 @@
+.piano-keyboard {
+  display: flex;
+  width: 100%;
+  height: min(45vh, 260px);
+  position: relative;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.piano-key.white {
+  position: relative;
+  flex: 1 1 0;
+  height: 100%;
+}
+
+.key-hit-area {
+  appearance: none;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0 0 10px;
+  border: 1px solid #c9c9cf;
+  border-radius: 0 0 6px 6px;
+  background: #fffdf8;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.key-hit-area:disabled {
+  cursor: default;
+}
+
+.key-marks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 1.2em;
+}
+
+.key-label {
+  font-size: 0.85rem;
+  color: #6b6375;
+}
+
+.key-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #aa3bff;
+}
+
+.piano-key.black {
+  appearance: none;
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  right: -30%;
+  width: 60%;
+  height: 60%;
+  z-index: 2;
+  background: #2a2a2e;
+  border: 1px solid #000;
+  border-radius: 0 0 4px 4px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.key-hit-area.correct,
+.piano-key.black.correct {
+  background: #4caf50;
+}
+
+.key-hit-area.wrong,
+.piano-key.black.wrong {
+  background: #f44336;
+}
+
+.key-hit-area.answer,
+.piano-key.black.answer {
+  background: #42a5f5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .key-hit-area {
+    background: #2b2c34;
+    border-color: #45464f;
+  }
+  .key-label {
+    color: #b7b2c0;
+  }
+}

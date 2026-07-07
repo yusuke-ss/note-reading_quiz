@@ -1,0 +1,27 @@
+.debug-page {
+  padding: 16px;
+}
+
+.debug-controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.debug-controls select {
+  margin-left: 6px;
+}
+
+.debug-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.debug-cell {
+  width: 160px;
+  text-align: center;
+  border: 1px solid var(--border, #e5e4e7);
+  border-radius: 6px;
+  padding: 4px;
+}
