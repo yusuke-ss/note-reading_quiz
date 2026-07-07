@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { noteId, noteToMidi, parseNoteId, whiteKeysInRange } from './notes';
+import { keyIdToMidi, noteId, noteToMidi, parseNoteId, whiteKeysInRange } from './notes';
 
 describe('noteToMidi', () => {
   it('maps C4 to 60', () => {
@@ -31,6 +31,22 @@ describe('noteId / parseNoteId', () => {
 
   it('throws on an invalid id', () => {
     expect(() => parseNoteId('H9')).toThrow();
+  });
+});
+
+describe('keyIdToMidi', () => {
+  it('maps a white-key id the same as noteToMidi', () => {
+    expect(keyIdToMidi('C4')).toBe(60);
+    expect(keyIdToMidi('B3')).toBe(59);
+  });
+
+  it('maps a sharp (black-key) id to one semitone above the letter', () => {
+    expect(keyIdToMidi('C#4')).toBe(61);
+    expect(keyIdToMidi('G#2')).toBe(noteToMidi({ letter: 'G', octave: 2 }) + 1);
+  });
+
+  it('throws on an invalid id', () => {
+    expect(() => keyIdToMidi('H9')).toThrow();
   });
 });
 

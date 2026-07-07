@@ -41,6 +41,20 @@ export function parseNoteId(id: NoteId): Note {
   return { letter: match[1] as Letter, octave: Number(match[2]) };
 }
 
+// Converts a piano-key id -- a white-key NoteId ("C4") or a sharp/black-key
+// id ("C#4") -- to its MIDI note number. Used for playback: the keyboard
+// emits ids for whichever key was physically tapped, sharps included, even
+// though quiz answers are always judged against white-key NoteIds.
+export function keyIdToMidi(id: string): number {
+  const match = /^([A-G])(#?)(-?\d+)$/.exec(id);
+  if (!match) {
+    throw new Error(`invalid key id: ${id}`);
+  }
+  const [, letter, sharp, octaveStr] = match;
+  const midi = noteToMidi({ letter: letter as Letter, octave: Number(octaveStr) });
+  return sharp ? midi + 1 : midi;
+}
+
 // All white-key notes within [low, high] (inclusive), sorted low to high.
 export function whiteKeysInRange(low: NoteId, high: NoteId): Note[] {
   const lowNote = parseNoteId(low);
