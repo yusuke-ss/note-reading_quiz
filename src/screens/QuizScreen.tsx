@@ -2,7 +2,7 @@ import { useEffect, useReducer } from 'react';
 import type { Clef, Level, NoteId } from '../types';
 import { keyIdToMidi, noteId, SOLFEGE } from '../lib/notes';
 import { getKeyboardKeys } from '../lib/levels';
-import { getFeedbackDelayMs, getProgress, initialQuizState, quizReducer } from '../lib/quiz';
+import { getFeedbackDelayMs, getProgress, initialQuizState, quizReducer, type QuizResult } from '../lib/quiz';
 import { usePiano } from '../hooks/usePiano';
 import { StaffDisplay } from '../components/StaffDisplay';
 import { PianoKeyboard, type KeyHighlight } from '../components/PianoKeyboard';
@@ -14,18 +14,22 @@ export interface QuizSummary {
   correct: number;
   total: number;
   durationMs: number;
+  // Every primary (non-review) question, in order, with its pass/fail --
+  // the full log needed to aggregate per-note accuracy stats.
+  results: QuizResult[];
   wrongNoteIds: NoteId[];
 }
 
 export interface QuizScreenProps {
   clef: Clef;
   level: Level;
+  showLabels: boolean;
   onFinish: (summary: QuizSummary) => void;
 }
 
 const PRIMARY_TOTAL = 10;
 
-export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
+export function QuizScreen({ clef, level, showLabels, onFinish }: QuizScreenProps) {
   const [state, dispatch] = useReducer(quizReducer, initialQuizState);
   const { loadState, muted, toggleMute, play } = usePiano();
 
@@ -44,6 +48,7 @@ export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
       correct,
       total: state.results.length,
       durationMs: Date.now() - state.startedAt,
+      results: state.results,
       wrongNoteIds,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,7 +123,7 @@ export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
       <FeedbackBanner feedback={feedback} />
       <PianoKeyboard
         keys={keyboardKeys}
-        showLabels
+        showLabels={showLabels}
         highlight={highlight}
         disabled={state.phase === 'feedback'}
         onKeyPress={(id) => {

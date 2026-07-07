@@ -28,6 +28,7 @@ function App() {
         key={quizKey}
         clef={clef}
         level={level}
+        showLabels
         onFinish={(result) => {
           setSummary(result);
           setScreen('result');
