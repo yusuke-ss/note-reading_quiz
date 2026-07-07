@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Clef, Level } from './types';
 import { initPiano } from './audio/piano';
 import { QuizScreen, type QuizSummary } from './screens/QuizScreen';
+import { ResultScreen } from './screens/ResultScreen';
 import './App.css';
 
 const CLEFS: { value: Clef; label: string }[] = [
@@ -12,22 +13,19 @@ const LEVELS: Level[] = [1, 2, 3];
 
 type Screen = 'home' | 'quiz' | 'result';
 
-function formatDuration(ms: number): string {
-  const totalSeconds = Math.round(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return minutes > 0 ? `${minutes}分${seconds}秒` : `${seconds}秒`;
-}
-
 function App() {
   const [screen, setScreen] = useState<Screen>('home');
   const [clef, setClef] = useState<Clef>('treble');
   const [level, setLevel] = useState<Level>(1);
   const [summary, setSummary] = useState<QuizSummary | null>(null);
+  // Bumped on every quiz (re)start so QuizScreen remounts with fresh state
+  // instead of reusing its useReducer instance across attempts.
+  const [quizKey, setQuizKey] = useState(0);
 
   if (screen === 'quiz') {
     return (
       <QuizScreen
+        key={quizKey}
         clef={clef}
         level={level}
         onFinish={(result) => {
@@ -40,16 +38,16 @@ function App() {
 
   if (screen === 'result' && summary) {
     return (
-      <div className="home-screen">
-        <h1>けっか</h1>
-        <p className="result-score">
-          {summary.correct} / {summary.total} 問正解
-        </p>
-        <p className="result-time">かかった時間: {formatDuration(summary.durationMs)}</p>
-        <button type="button" className="primary-button" onClick={() => setScreen('home')}>
-          もういちど
-        </button>
-      </div>
+      <ResultScreen
+        clef={clef}
+        summary={summary}
+        onRetry={() => {
+          initPiano();
+          setQuizKey((key) => key + 1);
+          setScreen('quiz');
+        }}
+        onHome={() => setScreen('home')}
+      />
     );
   }
 
