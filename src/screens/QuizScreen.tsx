@@ -1,10 +1,12 @@
 import { useEffect, useReducer } from 'react';
 import type { Clef, Level, NoteId } from '../types';
-import { noteId, SOLFEGE } from '../lib/notes';
+import { keyIdToMidi, noteId, SOLFEGE } from '../lib/notes';
 import { getKeyboardKeys } from '../lib/levels';
 import { initialQuizState, quizReducer } from '../lib/quiz';
+import { usePiano } from '../hooks/usePiano';
 import { StaffDisplay } from '../components/StaffDisplay';
 import { PianoKeyboard, type KeyHighlight } from '../components/PianoKeyboard';
+import { MuteButton } from '../components/MuteButton';
 import './QuizScreen.css';
 
 export interface QuizSummary {
@@ -24,6 +26,7 @@ const PRIMARY_TOTAL = 10;
 
 export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
   const [state, dispatch] = useReducer(quizReducer, initialQuizState);
+  const { loadState, muted, toggleMute, play } = usePiano();
 
   // Kick off a fresh 10-question set once, on mount. The parent screen
   // remounts QuizScreen (via a fresh `key`) to start another game.
@@ -44,6 +47,18 @@ export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.phase]);
+
+  // On a wrong answer, play the correct note shortly after the (already
+  // played) wrong tap, so the two sounds don't blur together.
+  useEffect(() => {
+    if (state.phase !== 'feedback' || !state.lastAnswer || state.lastAnswer.correct || !state.current) {
+      return;
+    }
+    const correctMidi = keyIdToMidi(noteId(state.current.note));
+    const timer = setTimeout(() => play(correctMidi), 350);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.phase, state.lastAnswer, state.current]);
 
   if (!state.current) {
     return null;
@@ -73,10 +88,16 @@ export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
 
   return (
     <div className="quiz-screen">
-      <div className="quiz-progress">
-        {currentIsReview
-          ? `${PRIMARY_TOTAL} / ${PRIMARY_TOTAL}(復習 +${reviewRemaining})`
-          : `${primaryDone + 1} / ${PRIMARY_TOTAL}`}
+      <div className="quiz-header">
+        <div className="quiz-progress">
+          {currentIsReview
+            ? `${PRIMARY_TOTAL} / ${PRIMARY_TOTAL}(復習 +${reviewRemaining})`
+            : `${primaryDone + 1} / ${PRIMARY_TOTAL}`}
+        </div>
+        <div className="quiz-header-controls">
+          {loadState === 'loading' && <span className="quiz-loading">読みこみ中…</span>}
+          <MuteButton muted={muted} onToggle={toggleMute} />
+        </div>
       </div>
       <StaffDisplay clef={clef} note={state.current.note} />
       <div className={`quiz-feedback ${isCorrect ? 'correct' : 'wrong'}`}>
@@ -87,7 +108,10 @@ export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
         showLabels
         highlight={highlight}
         disabled={state.phase === 'feedback'}
-        onKeyPress={(id) => dispatch({ type: 'answer', pressed: id })}
+        onKeyPress={(id) => {
+          play(keyIdToMidi(id));
+          dispatch({ type: 'answer', pressed: id });
+        }}
       />
       <div className="quiz-actions">
         {state.phase === 'feedback' && (

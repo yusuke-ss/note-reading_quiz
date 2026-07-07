@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Clef, Level } from './types';
+import { initPiano } from './audio/piano';
 import { QuizScreen, type QuizSummary } from './screens/QuizScreen';
 import './App.css';
 
@@ -89,7 +90,17 @@ function App() {
         </div>
       </div>
 
-      <button type="button" className="primary-button" onClick={() => setScreen('quiz')}>
+      <button
+        type="button"
+        className="primary-button"
+        onClick={() => {
+          // Create/resume the AudioContext synchronously inside this tap
+          // handler (not awaited) -- iOS Safari only allows AudioContext
+          // creation/resume while a user gesture is still "in progress".
+          initPiano();
+          setScreen('quiz');
+        }}
+      >
         スタート
       </button>
     </div>
