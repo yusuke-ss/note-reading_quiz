@@ -1,22 +1,14 @@
 .piano-keyboard {
   display: flex;
   width: 100%;
-  /* Portrait (the default, phone-first case): keep the keyboard compact so
-     the staff above it has room to breathe. */
-  height: min(28vh, 220px);
-  flex-shrink: 0;
+  /* Height comes from the parent grid row (see .quiz-screen's
+     grid-template-rows) so it can yield space back to the staff area
+     instead of forcing it down to nothing on short landscape screens. */
+  height: 100%;
   position: relative;
   touch-action: manipulation;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-}
-
-@media (orientation: landscape) {
-  .piano-keyboard {
-    /* Landscape: width is plentiful but height is scarce, so give the
-       keyboard (the primary input) most of the vertical space instead. */
-    height: min(45vh, 320px);
-  }
 }
 
 .piano-key.white {

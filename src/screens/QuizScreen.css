@@ -1,14 +1,17 @@
 .quiz-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  /* Header: auto (content height). Staff: grows with leftover space but
+     never below its minmax floor. Keyboard: prefers min(28vh,220px)
+     (45vh/320px in landscape) but will yield down to its own floor first --
+     so on a real phone in landscape, where Safari's chrome can leave well
+     under 300px of usable height, the staff keeps a legible minimum instead
+     of being crushed to a sliver by a keyboard that refuses to shrink. */
+  grid-template-rows: auto minmax(120px, 1fr) minmax(160px, min(28vh, 220px));
+  justify-items: center;
   gap: 8px;
   width: 100%;
   max-width: 520px;
   margin: 0 auto;
-  /* Pinned to the viewport height (not just min-height) so the staff area
-     below can flex/shrink to fit -- this matters most in landscape on
-     phones, where header + staff + keyboard would otherwise overflow. */
   height: 100vh;
   height: 100dvh;
   padding: 12px 16px calc(24px + env(safe-area-inset-bottom)) 16px;
@@ -16,21 +19,25 @@
   box-sizing: border-box;
 }
 
+@media (orientation: landscape) {
+  .quiz-screen {
+    grid-template-rows: auto minmax(90px, 1fr) minmax(110px, min(45vh, 320px));
+  }
+}
+
 .quiz-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  flex-shrink: 0;
 }
 
-/* Wraps the staff + feedback banner so they can shrink to fit whatever
-   vertical space is left after the header and keyboard take theirs
-   (mainly relevant in landscape, where height is scarce). */
+/* Wraps the staff + feedback banner. Sized entirely by the parent grid's
+   middle row (see .quiz-screen), so it always keeps at least its minmax
+   floor regardless of what the keyboard row below wants. */
 .quiz-staff-area {
-  flex: 1 1 auto;
-  min-height: 0;
   width: 100%;
+  height: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
