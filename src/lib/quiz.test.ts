@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Clef, Level } from '../types';
 import { getQuestionPool } from './levels';
 import { noteId } from './notes';
-import { generateQuestions, quizReducer } from './quiz';
+import { generateQuestions, getFeedbackDelayMs, getProgress, quizReducer } from './quiz';
 import type { QuizState } from './quiz';
 
 const CLEFS: Clef[] = ['treble', 'bass'];
@@ -165,5 +165,69 @@ describe('quizReducer', () => {
     expect(state.phase).toBe('finished');
     // 10 initial questions, all wrong -> exactly 10 results recorded (reviews excluded)
     expect(state.results).toHaveLength(10);
+  });
+});
+
+describe('getProgress', () => {
+  it('reports "n / 10" for the nth primary question, before any answers are recorded', () => {
+    const state = startState();
+    expect(getProgress(state)).toEqual({ label: '1 / 10', isReview: false });
+  });
+
+  it('advances n as primary results accumulate', () => {
+    let state: QuizState = {
+      queue: [],
+      current: { note: { letter: 'C', octave: 4 }, isReview: false },
+      phase: 'question',
+      lastAnswer: null,
+      results: [
+        { noteId: 'D4', correct: true },
+        { noteId: 'E4', correct: false },
+      ],
+      startedAt: 0,
+    };
+    expect(getProgress(state)).toEqual({ label: '3 / 10', isReview: false });
+  });
+
+  it('shows "10 / 10(復習 +m)" while working through review items, counting current + queued reviews', () => {
+    const state: QuizState = {
+      queue: [
+        { note: { letter: 'D', octave: 4 }, isReview: true },
+        { note: { letter: 'E', octave: 4 }, isReview: true },
+      ],
+      current: { note: { letter: 'C', octave: 4 }, isReview: true },
+      phase: 'question',
+      lastAnswer: null,
+      results: new Array(10).fill({ noteId: 'C4', correct: true }),
+      startedAt: 0,
+    };
+    expect(getProgress(state)).toEqual({ label: '10 / 10(復習 +3)', isReview: true });
+  });
+
+  it('ignores non-review items left in the queue when counting review remaining (they should not coexist, but be defensive)', () => {
+    const state: QuizState = {
+      queue: [{ note: { letter: 'D', octave: 4 }, isReview: false }],
+      current: { note: { letter: 'C', octave: 4 }, isReview: true },
+      phase: 'question',
+      lastAnswer: null,
+      results: [],
+      startedAt: 0,
+    };
+    expect(getProgress(state)).toEqual({ label: '10 / 10(復習 +1)', isReview: true });
+  });
+
+  it('supports a custom primary total', () => {
+    const state = startState();
+    expect(getProgress(state, 5)).toEqual({ label: '1 / 5', isReview: false });
+  });
+});
+
+describe('getFeedbackDelayMs', () => {
+  it('returns 700ms for a correct answer', () => {
+    expect(getFeedbackDelayMs(true)).toBe(700);
+  });
+
+  it('returns 1800ms for a wrong answer', () => {
+    expect(getFeedbackDelayMs(false)).toBe(1800);
   });
 });

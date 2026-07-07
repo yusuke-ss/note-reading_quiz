@@ -64,6 +64,33 @@ export const initialQuizState: QuizState = {
   startedAt: 0,
 };
 
+export interface QuizProgress {
+  // e.g. "3 / 10" during the primary 10, or "10 / 10(復習 +2)" while
+  // working through re-asked notes.
+  label: string;
+  isReview: boolean;
+}
+
+// Derives the "n / 10" (or "10 / 10(復習 +m)") progress label from quiz
+// state. Primary progress counts recorded results plus the question in
+// flight; review progress counts the current review item (if any) plus
+// any review items still queued.
+export function getProgress(state: QuizState, primaryTotal = 10): QuizProgress {
+  const isReview = state.current?.isReview ?? false;
+  if (isReview) {
+    const reviewRemaining =
+      state.queue.filter((item) => item.isReview).length + 1;
+    return { label: `${primaryTotal} / ${primaryTotal}(復習 +${reviewRemaining})`, isReview };
+  }
+  return { label: `${state.results.length + 1} / ${primaryTotal}`, isReview };
+}
+
+// Auto-advance delay after an answer: quicker for a correct answer, longer
+// for a wrong one so the correct-note callout has time to register.
+export function getFeedbackDelayMs(correct: boolean): number {
+  return correct ? 700 : 1800;
+}
+
 export function quizReducer(state: QuizState, action: QuizAction): QuizState {
   switch (action.type) {
     case 'start': {
