@@ -7,7 +7,12 @@ export interface StaffDisplayProps {
   note: Note;
 }
 
-const WIDTH = 300;
+// Narrow on purpose: a single note only needs the clef plus its own
+// width, not a full 4-beat measure. Keeping WIDTH small (vs. HEIGHT, which
+// stays tall enough for level 3's 2-3 ledger lines) means object-fit:contain
+// below is height-bound in portrait, so the note fills the available
+// vertical space instead of leaving large letterboxed blank margins.
+const WIDTH = 170;
 const HEIGHT = 260;
 
 export function StaffDisplay({ clef, note }: StaffDisplayProps) {
@@ -23,7 +28,7 @@ export function StaffDisplay({ clef, note }: StaffDisplayProps) {
     renderer.resize(WIDTH, HEIGHT);
     const context = renderer.getContext();
 
-    const stave = new Stave(10, 80, 280);
+    const stave = new Stave(6, 80, 155);
     stave.addClef(clef);
     stave.setContext(context).draw();
 
@@ -33,7 +38,7 @@ export function StaffDisplay({ clef, note }: StaffDisplayProps) {
     const voice = new Voice({ numBeats: 4, beatValue: 4 });
     voice.addTickables([staveNote]);
 
-    new Formatter().joinVoices([voice]).format([voice], 220);
+    new Formatter().joinVoices([voice]).format([voice], 90);
     voice.draw(context, stave);
 
     const svg = container.querySelector('svg');
