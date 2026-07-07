@@ -1,4 +1,13 @@
+/* Absolutely positioned over the staff area (not in flow) so the reserved
+   space for feedback text never steals height from the note itself -- this
+   matters most in landscape on phones, where the staff area's whole budget
+   can be under 120px and a permanently-reserved banner would crush the
+   note down to an illegible size (see: note disappearing in landscape). */
 .feedback-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   min-height: 2.2em;
   width: 100%;
   display: flex;
@@ -7,6 +16,7 @@
   font-size: 1.5rem;
   font-weight: 800;
   text-align: center;
+  pointer-events: none;
 }
 
 .feedback-banner.correct,
