@@ -21,7 +21,54 @@
 
 @media (orientation: landscape) {
   .quiz-screen {
-    grid-template-rows: auto minmax(90px, 1fr) minmax(110px, min(45vh, 320px));
+    /* Header row is dropped entirely (see .quiz-header below) -- the grid
+       goes from 3 rows to 2, handing its 44px + gap back to the staff.
+       position: relative makes this the containing block for the
+       absolutely-positioned header, so top: 0 lands at the padding edge
+       (i.e. right at the top of the staff row) instead of some outer
+       ancestor. */
+    position: relative;
+    grid-template-rows: minmax(170px, 1fr) minmax(100px, min(38vh, 280px));
+    gap: 4px;
+    padding: calc(4px + env(safe-area-inset-top)) 12px calc(4px + env(safe-area-inset-bottom)) 12px;
+  }
+
+  /* Header no longer takes its own row -- it overlays the top of the staff
+     area instead, so the space it used to occupy goes to the note. */
+  .quiz-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    padding: 2px 4px 0 4px;
+  }
+
+  .quiz-progress {
+    font-size: 0.85rem;
+  }
+
+  .quiz-loading {
+    font-size: 0.65rem;
+  }
+
+  .quiz-header-controls {
+    gap: 4px;
+  }
+
+  .mute-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    font-size: 0.85rem;
+  }
+
+  /* Staff area is now the positioning context for the absolutely-placed
+     header, and needs top padding so the note itself never sits under it. */
+  .quiz-staff-area {
+    position: relative;
+    padding-top: 32px;
   }
 }
 
