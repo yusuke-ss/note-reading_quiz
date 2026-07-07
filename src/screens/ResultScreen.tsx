@@ -1,4 +1,4 @@
-import type { Clef } from '../types';
+import type { Clef, Level } from '../types';
 import { formatDuration } from '../lib/format';
 import { parseNoteId, SOLFEGE } from '../lib/notes';
 import { StaffDisplay } from '../components/StaffDisplay';
@@ -7,12 +7,13 @@ import './ResultScreen.css';
 
 export interface ResultScreenProps {
   clef: Clef;
+  level: Level;
   summary: QuizSummary;
   onRetry: () => void;
   onHome: () => void;
 }
 
-export function ResultScreen({ clef, summary, onRetry, onHome }: ResultScreenProps) {
+export function ResultScreen({ clef, level, summary, onRetry, onHome }: ResultScreenProps) {
   const allCorrect = summary.total > 0 && summary.correct === summary.total;
 
   return (
@@ -32,7 +33,7 @@ export function ResultScreen({ clef, summary, onRetry, onHome }: ResultScreenPro
               const note = parseNoteId(id);
               return (
                 <li key={`${id}-${index}`} className="result-wrong-item">
-                  <StaffDisplay clef={clef} note={note} />
+                  <StaffDisplay clef={clef} level={level} note={note} />
                   <span className="result-wrong-label">{SOLFEGE[note.letter]}</span>
                 </li>
               );

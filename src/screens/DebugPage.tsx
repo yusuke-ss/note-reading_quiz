@@ -49,7 +49,7 @@ export function DebugPage() {
       <div className="debug-grid">
         {notes.map((note) => (
           <div key={noteId(note)} className="debug-cell">
-            <StaffDisplay clef={clef} note={note} />
+            <StaffDisplay clef={clef} level={level} note={note} />
             <span>{noteId(note)}</span>
           </div>
         ))}

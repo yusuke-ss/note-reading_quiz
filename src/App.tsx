@@ -91,6 +91,7 @@ function App() {
     return (
       <ResultScreen
         clef={settings.clef}
+        level={settings.level}
         summary={summary}
         onRetry={() => {
           setQuizKey((key) => key + 1);

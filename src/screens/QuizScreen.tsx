@@ -120,7 +120,7 @@ export function QuizScreen({ clef, level, showLabels, onFinish }: QuizScreenProp
         </div>
       </div>
       <div className="quiz-staff-area">
-        <StaffDisplay clef={clef} note={state.current.note} />
+        <StaffDisplay clef={clef} level={level} note={state.current.note} />
         <FeedbackBanner feedback={feedback} />
       </div>
       <PianoKeyboard
