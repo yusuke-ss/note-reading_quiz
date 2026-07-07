@@ -75,18 +75,39 @@
 }
 
 .key-hit-area.correct,
+.key-hit-area.wrong,
+.key-hit-area.answer,
+.piano-key.black.correct,
+.piano-key.black.wrong,
+.piano-key.black.answer {
+  animation: key-highlight-in 0.15s ease-out;
+}
+
+.key-hit-area.correct,
 .piano-key.black.correct {
   background: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.4);
 }
 
 .key-hit-area.wrong,
 .piano-key.black.wrong {
   background: #f44336;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.4);
 }
 
 .key-hit-area.answer,
 .piano-key.black.answer {
   background: #42a5f5;
+  box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.4);
+}
+
+@keyframes key-highlight-in {
+  from {
+    filter: brightness(1.3);
+  }
+  to {
+    filter: brightness(1);
+  }
 }
 
 @media (prefers-color-scheme: dark) {

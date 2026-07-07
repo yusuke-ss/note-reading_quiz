@@ -2,10 +2,11 @@ import { useEffect, useReducer } from 'react';
 import type { Clef, Level, NoteId } from '../types';
 import { keyIdToMidi, noteId, SOLFEGE } from '../lib/notes';
 import { getKeyboardKeys } from '../lib/levels';
-import { initialQuizState, quizReducer } from '../lib/quiz';
+import { getFeedbackDelayMs, getProgress, initialQuizState, quizReducer } from '../lib/quiz';
 import { usePiano } from '../hooks/usePiano';
 import { StaffDisplay } from '../components/StaffDisplay';
 import { PianoKeyboard, type KeyHighlight } from '../components/PianoKeyboard';
+import { FeedbackBanner, type Feedback } from '../components/FeedbackBanner';
 import { MuteButton } from '../components/MuteButton';
 import './QuizScreen.css';
 
@@ -60,49 +61,61 @@ export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.phase, state.lastAnswer, state.current]);
 
+  // Auto-advance to the next question after feedback: quicker for a
+  // correct answer, longer for a wrong one. Cleared on unmount and on
+  // every phase change (including a manual tap-to-skip via `next`), so
+  // there's never more than one pending timer.
+  useEffect(() => {
+    if (state.phase !== 'feedback' || !state.lastAnswer) return;
+    const delay = getFeedbackDelayMs(state.lastAnswer.correct);
+    const timer = setTimeout(() => dispatch({ type: 'next' }), delay);
+    return () => clearTimeout(timer);
+  }, [state.phase, state.lastAnswer]);
+
   if (!state.current) {
     return null;
   }
 
   const keyboardKeys = getKeyboardKeys(clef, level);
-  const primaryDone = state.results.length;
-  const currentIsReview = state.current.isReview;
-  const reviewRemaining =
-    state.queue.filter((item) => item.isReview).length + (currentIsReview ? 1 : 0);
+  const progress = getProgress(state, PRIMARY_TOTAL);
 
   const highlight: Record<NoteId, KeyHighlight> = {};
-  let feedbackMessage: string | null = null;
-  const isCorrect = state.lastAnswer?.correct ?? false;
+  let feedback: Feedback | null = null;
 
   if (state.phase === 'feedback' && state.lastAnswer) {
     const correctId = noteId(state.current.note);
     if (state.lastAnswer.correct) {
       highlight[state.lastAnswer.pressed] = 'correct';
-      feedbackMessage = '○ せいかい!';
+      feedback = { kind: 'correct', answerLabel: SOLFEGE[state.current.note.letter] };
     } else {
       highlight[state.lastAnswer.pressed] = 'wrong';
       highlight[correctId] = 'answer';
-      feedbackMessage = `× こたえは ${SOLFEGE[state.current.note.letter]}`;
+      feedback = { kind: 'wrong', answerLabel: SOLFEGE[state.current.note.letter] };
     }
   }
 
+  // Tapping anywhere on screen other than the (disabled, during feedback)
+  // keyboard skips the auto-advance wait. Guarded by phase so a tap during
+  // 'question' never fires this early (and the tap that produced the
+  // answer itself still reads the pre-update 'question' phase from this
+  // render's closure, so it can't immediately re-trigger 'next').
+  const handleScreenTap = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (state.phase !== 'feedback') return;
+    if ((event.target as HTMLElement).closest('.piano-keyboard')) return;
+    dispatch({ type: 'next' });
+  };
+
   return (
-    <div className="quiz-screen">
+    <div className="quiz-screen" onClick={handleScreenTap}>
       <div className="quiz-header">
-        <div className="quiz-progress">
-          {currentIsReview
-            ? `${PRIMARY_TOTAL} / ${PRIMARY_TOTAL}(復習 +${reviewRemaining})`
-            : `${primaryDone + 1} / ${PRIMARY_TOTAL}`}
-        </div>
+        <div className="quiz-progress">{progress.label}</div>
         <div className="quiz-header-controls">
           {loadState === 'loading' && <span className="quiz-loading">読みこみ中…</span>}
           <MuteButton muted={muted} onToggle={toggleMute} />
         </div>
       </div>
       <StaffDisplay clef={clef} note={state.current.note} />
-      <div className={`quiz-feedback ${isCorrect ? 'correct' : 'wrong'}`}>
-        {feedbackMessage ?? ' '}
-      </div>
+      <FeedbackBanner feedback={feedback} />
       <PianoKeyboard
         keys={keyboardKeys}
         showLabels
@@ -113,13 +126,6 @@ export function QuizScreen({ clef, level, onFinish }: QuizScreenProps) {
           dispatch({ type: 'answer', pressed: id });
         }}
       />
-      <div className="quiz-actions">
-        {state.phase === 'feedback' && (
-          <button type="button" className="quiz-next" onClick={() => dispatch({ type: 'next' })}>
-            つぎへ
-          </button>
-        )}
-      </div>
     </div>
   );
 }

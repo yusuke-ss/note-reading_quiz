@@ -1,0 +1,43 @@
+.feedback-banner {
+  min-height: 2.2em;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.feedback-banner.correct,
+.feedback-banner.wrong {
+  animation: feedback-fade-in 0.2s ease-out;
+}
+
+.feedback-banner.correct {
+  color: #2e7d32;
+}
+
+.feedback-banner.wrong {
+  color: #c62828;
+}
+
+@keyframes feedback-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .feedback-banner.correct {
+    color: #66bb6a;
+  }
+  .feedback-banner.wrong {
+    color: #ef5350;
+  }
+}

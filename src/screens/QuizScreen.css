@@ -38,33 +38,3 @@
   width: 100%;
   max-width: 320px;
 }
-
-.quiz-feedback {
-  min-height: 1.6em;
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-.quiz-feedback.correct {
-  color: #2e7d32;
-}
-
-.quiz-feedback.wrong {
-  color: #c62828;
-}
-
-.quiz-actions {
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-}
-
-.quiz-next {
-  font-size: 1rem;
-  padding: 10px 28px;
-  border-radius: 999px;
-  border: none;
-  background: var(--accent, #aa3bff);
-  color: #fff;
-  cursor: pointer;
-}
