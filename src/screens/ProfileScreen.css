@@ -1,0 +1,79 @@
+.profile-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.profile-empty-hint {
+  color: var(--text);
+}
+
+.profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-item {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.profile-select-button {
+  flex: 1;
+  font-size: 1.1rem;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+  text-align: left;
+}
+
+.profile-select-button:hover {
+  border-color: var(--accent);
+}
+
+.profile-delete-button {
+  font-size: 0.9rem;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: #c62828;
+  cursor: pointer;
+}
+
+.profile-create {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.profile-create input {
+  flex: 1;
+  font-size: 1rem;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+@media (prefers-color-scheme: dark) {
+  .profile-delete-button {
+    color: #ef5350;
+  }
+}

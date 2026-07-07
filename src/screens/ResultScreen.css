@@ -68,16 +68,6 @@
   margin-top: 8px;
 }
 
-.secondary-button {
-  font-size: 1.1rem;
-  padding: 12px 36px;
-  border-radius: 999px;
-  border: 2px solid var(--border);
-  background: var(--bg);
-  color: var(--text-h);
-  cursor: pointer;
-}
-
 @keyframes result-celebration-in {
   from {
     opacity: 0;

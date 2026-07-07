@@ -71,3 +71,40 @@ h2 {
 p {
   margin: 0;
 }
+
+/* Shared button styles used across screens (Home/Profile/Result/Stats). */
+.primary-button {
+  font-size: 1.1rem;
+  padding: 12px 36px;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  font-size: 1.1rem;
+  padding: 12px 36px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.link-button {
+  font-size: 0.95rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
