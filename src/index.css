@@ -41,6 +41,10 @@
 
 body {
   margin: 0;
+  /* Keep content clear of the notch / rounded corners, mainly relevant in
+     landscape where the safe areas land on the left/right edges. */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 #root {
@@ -72,16 +76,22 @@ p {
   margin: 0;
 }
 
-/* Shared button styles used across screens (Home/Profile/Result/Stats). */
+/* Shared button styles used across screens (Home/Profile/Result/Stats).
+   All keep a >=44px tap target (min-height + centered content) even when
+   the visible label/padding is smaller, per mobile touch-target guidance. */
 .primary-button {
   font-size: 1.1rem;
   padding: 12px 36px;
+  min-height: 44px;
   border-radius: 999px;
   border: none;
   background: var(--accent);
   color: #fff;
   cursor: pointer;
   margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .primary-button:disabled {
@@ -92,19 +102,26 @@ p {
 .secondary-button {
   font-size: 1.1rem;
   padding: 12px 36px;
+  min-height: 44px;
   border-radius: 999px;
   border: 2px solid var(--border);
   background: var(--bg);
   color: var(--text-h);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .link-button {
   font-size: 0.95rem;
-  padding: 0;
+  padding: 4px 2px;
+  min-height: 44px;
   border: none;
   background: none;
   color: var(--accent);
   text-decoration: underline;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
 }

@@ -1,16 +1,34 @@
 .piano-keyboard {
   display: flex;
   width: 100%;
-  height: min(45vh, 260px);
+  /* Portrait (the default, phone-first case): keep the keyboard compact so
+     the staff above it has room to breathe. */
+  height: min(28vh, 220px);
+  flex-shrink: 0;
   position: relative;
   touch-action: manipulation;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
+@media (orientation: landscape) {
+  .piano-keyboard {
+    /* Landscape: width is plentiful but height is scarce, so give the
+       keyboard (the primary input) most of the vertical space instead. */
+    height: min(45vh, 320px);
+  }
+}
+
 .piano-key.white {
   position: relative;
   flex: 1 1 0;
+  /* Wide ranges (e.g. bass level 3 spans 17 white keys) can push a key
+     narrower than the ~44px touch-target guideline on small phones in
+     portrait; this is the same trade-off real/virtual keyboards make to
+     stay fully visible without scrolling (contiguous keys with no gaps,
+     unlike an isolated button, so a near-miss still lands on a neighbor).
+     The floor below just guards against degenerate over-squeezing. */
+  min-width: 20px;
   height: 100%;
 }
 

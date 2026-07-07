@@ -41,8 +41,17 @@ export function StaffDisplay({ clef, note }: StaffDisplayProps) {
       if (!svg.getAttribute('viewBox')) {
         svg.setAttribute('viewBox', `0 0 ${WIDTH} ${HEIGHT}`);
       }
+      // width/height 100% + object-fit: contain scales the note to fit
+      // whichever dimension is tighter. Where the container only
+      // constrains width (e.g. ResultScreen's fixed-width thumbnails),
+      // height:100% against an auto-height parent resolves to 'auto' per
+      // the CSS spec, so this degrades to the old width-driven behavior.
+      // Where the container also has a bounded height (QuizScreen's
+      // flex-shrinkable staff area, used to fit landscape phone screens),
+      // both axes are honored so the note shrinks instead of overflowing.
       svg.style.width = '100%';
-      svg.style.height = 'auto';
+      svg.style.height = '100%';
+      svg.style.objectFit = 'contain';
     }
   }, [clef, note.letter, note.octave]);
 

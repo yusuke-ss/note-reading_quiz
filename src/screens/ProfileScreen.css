@@ -48,6 +48,11 @@
 .profile-delete-button {
   font-size: 0.9rem;
   padding: 0 14px;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 14px;
   border: 2px solid var(--border);
   background: var(--bg);

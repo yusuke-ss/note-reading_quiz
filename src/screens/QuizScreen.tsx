@@ -119,8 +119,10 @@ export function QuizScreen({ clef, level, showLabels, onFinish }: QuizScreenProp
           <MuteButton muted={muted} onToggle={toggleMute} />
         </div>
       </div>
-      <StaffDisplay clef={clef} note={state.current.note} />
-      <FeedbackBanner feedback={feedback} />
+      <div className="quiz-staff-area">
+        <StaffDisplay clef={clef} note={state.current.note} />
+        <FeedbackBanner feedback={feedback} />
+      </div>
       <PianoKeyboard
         keys={keyboardKeys}
         showLabels={showLabels}
