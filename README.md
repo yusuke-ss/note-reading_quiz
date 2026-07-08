@@ -1,32 +1,100 @@
-# React + TypeScript + Vite
+# 音符読みクイズ
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+五線譜に表示された音符を、画面上のピアノ鍵盤をタップして答える音符読みクイズアプリです。楽譜初心者(ピアノを習い始めた人とその家族)が「譜面上の音符」と「鍵盤の位置」を結び付けて覚えることを目的にしています。日本語UI。
 
-Currently, two official plugins are available:
+## 公開URL
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+https://yusuke-ss.github.io/note-reading_quiz/
 
-## React Compiler
+## 主な機能
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **ト音記号 / ヘ音記号の切り替え**: 設定で好きな譜表を選べます(初期はト音記号)。
+- **3段階のレベル**: 譜表ごとに出題される音域が3段階に分かれています(下表参照)。
+- **白鍵のみ・オクターブ厳密判定**: 出題対象は白鍵のみ。同じ音名でもオクターブが違えば不正解です。鍵盤には黒鍵も表示されますが、常に不正解になります。中央ド(C4)には鍵盤上に目印(●)が常時表示されます。
+- **ドレミ表記**: 音名は日本のピアノ教育に合わせてドレミ表記。鍵盤上のドレミラベル表示はON/OFF切り替え可能です。
+- **10問1セット + 復習出題**: 1セット10問。間違えた音はセットの末尾に再出題されます(同じ音の復習は最大1回)。スコアは最初の10問のみでカウントされ、復習の正誤はスコアに影響しません。
+- **自動送り**: 正解時は0.7秒後、不正解時は1.8秒後に自動的に次の問題へ進みます。画面をタップするとすぐにスキップできます。
+- **ピアノ音再生**: smplrによる本物のピアノ音源(SplendidGrandPiano)を再生します。ミュートも可能です。
+- **プロフィール別の記録**: localStorageに複数プロフィール(家族の名前など)を保存し、それぞれのセッション履歴・音ごとの正答率統計を管理します。
+- **モバイル最適化**: スマートフォン・タブレットでの利用を想定し、特に横向き(landscape)表示時に譜面・鍵盤が潰れないようレイアウトを調整しています。
+- **デバッグページ**: URLに `?debug` を付けると、各レベル・各譜表で出題されるすべての音を一覧描画するページが開きます(加線のはみ出し等の目視確認用)。
 
-## Expanding the Oxlint configuration
+## レベル表(譜表 × レベルの出題音域)
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+| 譜表 | レベル1(五線内) | レベル2(加線1本まで) | レベル3(加線2本まで) |
+|---|---|---|---|
+| ト音記号 | E4–F5 | C4–A5 | A3–C6 |
+| ヘ音記号 | G2–A3 | E2–C4 | C2–E4 |
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## 使い方
+
+1. **プロフィール作成**: 初回起動時にプロフィール(名前)を作成します。複数人で使う場合は人数分作成できます。
+2. **設定**: ホーム画面で譜表(ト音/ヘ音)・レベル(1〜3)・鍵盤のドレミラベル表示を設定します。
+3. **クイズ**: 「はじめる」で10問1セットのクイズが始まります。譜面の音符を見て、画面下のピアノ鍵盤をタップして答えます。不正解の場合は正しい鍵盤とドレミがハイライトされ、正解音が再生されます。
+4. **結果**: セット終了後、正解数と所要時間が表示されます。そのままもう一度挑戦するか、ホームに戻れます。
+5. **統計**: ホーム画面から統計画面に移動すると、セッション履歴や音ごとの正答率(苦手な音の把握)を確認できます。
+
+## 技術スタック
+
+- **フロントエンド**: React 19 + TypeScript + Vite(ルーターは使わず、`App.tsx` の `useState` による画面ステートマシンで遷移)
+- **楽譜描画**: VexFlow 5(SVG出力)
+- **ピアノ音源**: smplr(SplendidGrandPiano)、CacheStorageでサンプルをキャッシュ
+- **永続化**: localStorage(バージョン付きJSONスキーマ)
+- **テスト**: Vitest(純粋ロジックを中心に71件のテスト)
+- **Lint**: oxlint
+
+設計判断の詳細は [docs/adr](docs/adr/README.md) を参照してください。
+
+## 開発方法
+
+Node.js 22 系を推奨(CIも同バージョンで実行しています)。
+
+```bash
+npm install       # 依存関係のインストール
+npm run dev       # 開発サーバー起動
+npm test          # Vitestでテスト実行
+npm run build     # 型チェック + 本番ビルド(dist/ に出力)
+npm run preview   # ビルド結果をローカルでプレビュー
+npm run lint      # oxlintによるlint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+開発サーバー起動後、URLに `?debug` を付けてアクセスすると(例: `http://localhost:5173/note-reading_quiz/?debug`)、各レベル・各譜表の出題音を一覧描画するデバッグページが開きます。譜面のレイアウト崩れや加線のはみ出しを目視確認する用途です。
+
+## デプロイ
+
+`main` ブランチへの push をトリガーに GitHub Actions(`.github/workflows/deploy.yml`)が自動実行され、テスト(`npm run test`)→ビルド(`npm run build`)→GitHub Pagesへのデプロイまでを行います。テストが失敗した場合はデプロイされません。手動実行(`workflow_dispatch`)にも対応しています。
+
+## ディレクトリ構成
+
+```
+src/
+├─ main.tsx              # エントリーポイント(?debug クエリでDebugPageに切り替え)
+├─ App.tsx                # 画面ステートマシン(profiles/home/quiz/result/stats)
+├─ types.ts               # Note, Clef, Level などの共有型
+├─ lib/
+│  ├─ notes.ts            # 音名・オクターブ・MIDI・ドレミ変換(純関数)
+│  ├─ levels.ts           # 譜表×レベルの出題音域・鍵盤表示音域テーブル
+│  ├─ quiz.ts             # 出題生成・進行reducer・復習キュー(純関数)
+│  ├─ storage.ts          # localStorageスキーマ・読み書き・フォールバック
+│  └─ format.ts           # 所要時間などの表示用フォーマッタ
+├─ audio/
+│  └─ piano.ts            # smplrラッパ(シングルトン、resume、mute、DI可能)
+├─ hooks/
+│  └─ usePiano.ts         # piano.tsの状態を購読するフック
+├─ components/
+│  ├─ StaffDisplay.tsx    # VexFlowによる五線譜+音符の描画
+│  ├─ PianoKeyboard.tsx   # タップ可能なピアノ鍵盤
+│  ├─ FeedbackBanner.tsx  # 正誤フィードバックのオーバーレイ表示
+│  └─ MuteButton.tsx      # ミュート切り替えボタン
+└─ screens/
+   ├─ ProfileScreen.tsx   # プロフィール作成・選択
+   ├─ HomeScreen.tsx      # 設定(譜表/レベル/ラベル表示)とクイズ開始
+   ├─ QuizScreen.tsx      # クイズ本体の画面
+   ├─ ResultScreen.tsx    # セット終了後の結果表示
+   ├─ StatsScreen.tsx     # セッション履歴・音別正答率統計
+   └─ DebugPage.tsx        # ?debug 用の出題音一覧描画ページ
+```
+
+## 設計判断(ADR)
+
+主要な設計判断は [docs/adr/](docs/adr/README.md) 配下にArchitecture Decision Recordsとして記録しています。技術選定の理由やモバイル横向き対応のレイアウト戦略など、コードだけでは伝わりにくい「なぜそうしたか」をまとめています。
