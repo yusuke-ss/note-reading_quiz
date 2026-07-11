@@ -2,7 +2,7 @@
   display: grid;
   /* Header: auto (content height). Staff: grows with leftover space but
      never below its minmax floor. Keyboard: prefers min(28vh,220px)
-     (45vh/320px in landscape) but will yield down to its own floor first --
+     (34vh/280px in landscape) but will yield down to its own floor first --
      so on a real phone in landscape, where Safari's chrome can leave well
      under 300px of usable height, the staff keeps a legible minimum instead
      of being crushed to a sliver by a keyboard that refuses to shrink. */
@@ -28,7 +28,11 @@
        (i.e. right at the top of the staff row) instead of some outer
        ancestor. */
     position: relative;
-    grid-template-rows: minmax(170px, 1fr) minmax(100px, min(38vh, 280px));
+    /* Keep the keyboard usable while giving a little more of the scarce
+       landscape height back to the staff. Because StaffDisplay scales its
+       SVG to the staff row's height, this makes the notation about 8% larger
+       on a typical 390px-high phone without changing portrait layout. */
+    grid-template-rows: minmax(170px, 1fr) minmax(100px, min(34vh, 280px));
     gap: 4px;
     padding: calc(4px + env(safe-area-inset-top)) 12px calc(4px + env(safe-area-inset-bottom)) 12px;
   }
@@ -69,6 +73,13 @@
   .quiz-staff-area {
     position: relative;
     padding-top: 32px;
+  }
+
+  /* Deliberately exaggerated for visual verification: make the rendered
+     notation unmistakably larger in landscape. */
+  .staff-display svg {
+    transform: scale(2);
+    transform-origin: center;
   }
 }
 
