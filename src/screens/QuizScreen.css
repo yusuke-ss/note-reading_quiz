@@ -28,6 +28,9 @@
        (i.e. right at the top of the staff row) instead of some outer
        ancestor. */
     position: relative;
+    /* Use the full landscape viewport so each piano key gets the largest
+       possible tap target instead of staying inside the portrait-width cap. */
+    max-width: none;
     /* Keep the keyboard usable while giving a little more of the scarce
        landscape height back to the staff. Because StaffDisplay scales its
        SVG to the staff row's height, this makes the notation about 8% larger
@@ -77,7 +80,7 @@
 
   /* Deliberately exaggerated for visual verification: make the rendered
      notation unmistakably larger in landscape. */
-  .staff-display svg {
+  .quiz-screen .staff-display svg {
     transform: scale(2);
     transform-origin: center;
   }
