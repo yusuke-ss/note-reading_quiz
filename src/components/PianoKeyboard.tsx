@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import type { Letter, Note, NoteId } from '../types';
 import { SOLFEGE } from '../lib/notes';
 import './PianoKeyboard.css';
@@ -11,6 +12,19 @@ export interface PianoKeyboardProps {
   disabled?: boolean;
   onKeyPress: (id: NoteId) => void;
 }
+
+interface PendingTap {
+  id: NoteId;
+  pointerId: number;
+  startedAt: number;
+  startX: number;
+  startY: number;
+}
+
+// A tap should be a quick press-and-release in nearly the same place.
+// This prevents swipes/drags on mobile from being judged as quiz answers.
+const MAX_TAP_DURATION_MS = 350;
+const MAX_TAP_MOVE_PX = 12;
 
 // Letters that have a black key to their right (i.e. all but E and B).
 const HAS_SHARP: Record<Letter, boolean> = {
@@ -30,9 +44,37 @@ export function PianoKeyboard({
   disabled = false,
   onKeyPress,
 }: PianoKeyboardProps) {
-  const handlePress = (id: NoteId) => {
+  const pendingTapRef = useRef<PendingTap | null>(null);
+
+  const clearPendingTap = () => {
+    pendingTapRef.current = null;
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>, id: NoteId) => {
     if (disabled) return;
-    onKeyPress(id);
+    pendingTapRef.current = {
+      id,
+      pointerId: event.pointerId,
+      startedAt: performance.now(),
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLButtonElement>, id: NoteId) => {
+    if (disabled) return;
+
+    const pendingTap = pendingTapRef.current;
+    clearPendingTap();
+
+    if (!pendingTap || pendingTap.id !== id || pendingTap.pointerId !== event.pointerId) return;
+
+    const elapsedMs = performance.now() - pendingTap.startedAt;
+    const movedPx = Math.hypot(event.clientX - pendingTap.startX, event.clientY - pendingTap.startY);
+
+    if (elapsedMs <= MAX_TAP_DURATION_MS && movedPx <= MAX_TAP_MOVE_PX) {
+      onKeyPress(id);
+    }
   };
 
   return (
@@ -53,7 +95,10 @@ export function PianoKeyboard({
               type="button"
               className={`key-hit-area ${whiteState ?? ''}`}
               disabled={disabled}
-              onPointerDown={() => handlePress(id)}
+              onPointerDown={(event) => handlePointerDown(event, id)}
+              onPointerUp={(event) => handlePointerUp(event, id)}
+              onPointerCancel={clearPendingTap}
+              onPointerLeave={clearPendingTap}
               aria-label={id}
             >
               <span className="key-marks">
@@ -68,8 +113,14 @@ export function PianoKeyboard({
                 disabled={disabled}
                 onPointerDown={(event) => {
                   event.stopPropagation();
-                  handlePress(sharpId);
+                  handlePointerDown(event, sharpId);
                 }}
+                onPointerUp={(event) => {
+                  event.stopPropagation();
+                  handlePointerUp(event, sharpId);
+                }}
+                onPointerCancel={clearPendingTap}
+                onPointerLeave={clearPendingTap}
                 aria-label={sharpId}
               />
             )}
