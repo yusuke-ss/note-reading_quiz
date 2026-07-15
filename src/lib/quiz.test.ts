@@ -33,6 +33,24 @@ describe('generateQuestions', () => {
       }
     }
   });
+
+  it('supports longer custom quizzes by distributing repeats across the pool', () => {
+    const questions = generateQuestions('treble', 1, 20);
+    const poolSize = getQuestionPool('treble', 1).length;
+    expect(questions).toHaveLength(20);
+
+    const counts = new Map<string, number>();
+    let lastId: string | null = null;
+    for (const note of questions) {
+      const id = noteId(note);
+      expect(id).not.toBe(lastId);
+      counts.set(id, (counts.get(id) ?? 0) + 1);
+      lastId = id;
+    }
+    for (const count of counts.values()) {
+      expect(count).toBeLessThanOrEqual(Math.ceil(20 / poolSize));
+    }
+  });
 });
 
 function startState(clef: Clef = 'treble', level: Level = 1, now = 1000): QuizState {
@@ -50,6 +68,15 @@ describe('quizReducer', () => {
     expect(state.phase).toBe('question');
     expect(state.startedAt).toBe(1000);
     expect(state.results).toEqual([]);
+  });
+
+  it('start supports a custom question count', () => {
+    const state = quizReducer(
+      { queue: [], current: null, phase: 'question', lastAnswer: null, results: [], startedAt: 0 },
+      { type: 'start', clef: 'treble', level: 1, count: 5, now: 1000 },
+    );
+    expect(state.current).not.toBeNull();
+    expect(state.queue).toHaveLength(4);
   });
 
   it('marks a correct answer and records it in results', () => {

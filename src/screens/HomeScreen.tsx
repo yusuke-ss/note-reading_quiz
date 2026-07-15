@@ -11,11 +11,13 @@ const CLEFS: { value: Clef; label: string }[] = [
   { value: 'bass', label: 'ヘ音記号' },
 ];
 const LEVELS: Level[] = [1, 2, 3];
+const QUESTION_COUNTS = [5, 10, 15, 20] as const;
 
 export interface HomeStartSettings {
   clef: Clef;
   level: Level;
   showKeyLabels: boolean;
+  questionCount: number;
 }
 
 export interface HomeScreenProps {
@@ -84,6 +86,22 @@ export function HomeScreen({
               onClick={() => onSettingsChange({ level: l })}
             >
               レベル{l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="choice-group">
+        <h2>問題数</h2>
+        <div className="choice-buttons" aria-label="問題数">
+          {QUESTION_COUNTS.map((count) => (
+            <button
+              key={count}
+              type="button"
+              className={`choice-button ${settings.questionCount === count ? 'selected' : ''}`}
+              onClick={() => onSettingsChange({ questionCount: count })}
+            >
+              {count}問
             </button>
           ))}
         </div>

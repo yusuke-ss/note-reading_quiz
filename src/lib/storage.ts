@@ -8,6 +8,7 @@ export interface ProfileSettings {
   level: Level;
   showKeyLabels: boolean;
   muted: boolean;
+  questionCount: number;
 }
 
 export interface SessionRecord {
@@ -45,6 +46,7 @@ const DEFAULT_SETTINGS: ProfileSettings = {
   level: 1,
   showKeyLabels: true,
   muted: false,
+  questionCount: 10,
 };
 
 function initialData(): PersistedData {
@@ -77,7 +79,13 @@ export function load(): PersistedData {
     if (!raw) return initialData();
     const parsed: unknown = JSON.parse(raw);
     if (!isPersistedData(parsed)) return initialData();
-    return parsed;
+    return {
+      ...parsed,
+      profiles: parsed.profiles.map((profile) => ({
+        ...profile,
+        settings: { ...DEFAULT_SETTINGS, ...profile.settings },
+      })),
+    };
   } catch (error) {
     console.error('note-quiz: failed to load saved data, resetting to defaults', error);
     return initialData();

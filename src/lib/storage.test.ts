@@ -97,7 +97,13 @@ describe('profile CRUD', () => {
   it('createProfile adds a profile with defaults and makes it active', () => {
     const profile = createProfile('たろう');
     expect(profile.name).toBe('たろう');
-    expect(profile.settings).toEqual({ clef: 'treble', level: 1, showKeyLabels: true, muted: false });
+    expect(profile.settings).toEqual({
+      clef: 'treble',
+      level: 1,
+      showKeyLabels: true,
+      muted: false,
+      questionCount: 10,
+    });
     expect(profile.sessions).toEqual([]);
     expect(profile.noteStats).toEqual({});
     expect(profile.id).toBeTruthy();
@@ -146,7 +152,13 @@ describe('profile CRUD', () => {
     const profile = createProfile('A');
     updateSettings(profile.id, { clef: 'bass', muted: true });
     const updated = getActiveProfile();
-    expect(updated?.settings).toEqual({ clef: 'bass', level: 1, showKeyLabels: true, muted: true });
+    expect(updated?.settings).toEqual({
+      clef: 'bass',
+      level: 1,
+      showKeyLabels: true,
+      muted: true,
+      questionCount: 10,
+    });
   });
 });
 

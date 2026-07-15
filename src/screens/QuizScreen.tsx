@@ -24,19 +24,18 @@ export interface QuizScreenProps {
   clef: Clef;
   level: Level;
   showLabels: boolean;
+  questionCount: number;
   onFinish: (summary: QuizSummary) => void;
 }
 
-const PRIMARY_TOTAL = 10;
-
-export function QuizScreen({ clef, level, showLabels, onFinish }: QuizScreenProps) {
+export function QuizScreen({ clef, level, showLabels, questionCount, onFinish }: QuizScreenProps) {
   const [state, dispatch] = useReducer(quizReducer, initialQuizState);
   const { loadState, muted, toggleMute, play } = usePiano();
 
-  // Kick off a fresh 10-question set once, on mount. The parent screen
+  // Kick off a fresh question set once, on mount. The parent screen
   // remounts QuizScreen (via a fresh `key`) to start another game.
   useEffect(() => {
-    dispatch({ type: 'start', clef, level });
+    dispatch({ type: 'start', clef, level, count: questionCount });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -82,7 +81,7 @@ export function QuizScreen({ clef, level, showLabels, onFinish }: QuizScreenProp
   }
 
   const keyboardKeys = getKeyboardKeys(clef, level);
-  const progress = getProgress(state, PRIMARY_TOTAL);
+  const progress = getProgress(state, questionCount);
 
   const highlight: Record<NoteId, KeyHighlight> = {};
   let feedback: Feedback | null = null;
