@@ -24,19 +24,20 @@ export interface QuizState {
 }
 
 export type QuizAction =
-  | { type: 'start'; clef: Clef; level: Level; now?: number }
+  | { type: 'start'; clef: Clef; level: Level; count?: number; now?: number }
   | { type: 'answer'; pressed: NoteId }
   | { type: 'next' };
 
 // Random 10 (default) questions from the level's white-key pool.
-// Constraints: never the same note as the immediately preceding question,
-// and no note appears more than twice across the set.
+// Constraint: never the same note as the immediately preceding question.
+// For longer custom quizzes, notes are distributed as evenly as the pool allows.
 export function generateQuestions(clef: Clef, level: Level, count = 10): Note[] {
   const pool = getQuestionPool(clef, level);
   if (pool.length === 0) return [];
 
   const questions: Note[] = [];
   const usedCount = new Map<NoteId, number>();
+  const maxPerNote = Math.ceil(count / pool.length);
   let lastId: NoteId | null = null;
 
   const maxAttempts = count * 500;
@@ -46,7 +47,7 @@ export function generateQuestions(clef: Clef, level: Level, count = 10): Note[] 
     const candidate = pool[Math.floor(Math.random() * pool.length)];
     const id = noteId(candidate);
     if (id === lastId) continue;
-    if ((usedCount.get(id) ?? 0) >= 2) continue;
+    if ((usedCount.get(id) ?? 0) >= maxPerNote) continue;
 
     questions.push(candidate);
     usedCount.set(id, (usedCount.get(id) ?? 0) + 1);
@@ -94,7 +95,7 @@ export function getFeedbackDelayMs(correct: boolean): number {
 export function quizReducer(state: QuizState, action: QuizAction): QuizState {
   switch (action.type) {
     case 'start': {
-      const notes = generateQuestions(action.clef, action.level, 10);
+      const notes = generateQuestions(action.clef, action.level, action.count ?? 10);
       const [current, ...rest] = notes.map((note): QuizItem => ({ note, isReview: false }));
       return {
         queue: rest,

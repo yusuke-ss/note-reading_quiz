@@ -14,6 +14,7 @@ function settingsFromProfile(profile: Profile): HomeStartSettings {
     clef: profile.settings.clef,
     level: profile.settings.level,
     showKeyLabels: profile.settings.showKeyLabels,
+    questionCount: profile.settings.questionCount ?? 10,
   };
 }
 
@@ -21,7 +22,9 @@ function App() {
   const [profile, setProfile] = useState<Profile | null>(() => getActiveProfile());
   const [screen, setScreen] = useState<Screen>(() => (profile ? 'home' : 'profiles'));
   const [settings, setSettings] = useState<HomeStartSettings>(() =>
-    profile ? settingsFromProfile(profile) : { clef: 'treble', level: 1, showKeyLabels: true },
+    profile
+      ? settingsFromProfile(profile)
+      : { clef: 'treble', level: 1, showKeyLabels: true, questionCount: 10 },
   );
   const [summary, setSummary] = useState<QuizSummary | null>(null);
   // Bumped on every quiz (re)start so QuizScreen remounts with fresh state
@@ -63,6 +66,7 @@ function App() {
         clef={settings.clef}
         level={settings.level}
         showLabels={settings.showKeyLabels}
+        questionCount={settings.questionCount}
         onFinish={(result) => {
           recordSession(
             profile.id,
